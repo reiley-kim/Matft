@@ -81,6 +81,18 @@ internal func get_positive_axis_for_expand_dims(_ axis: Int, ndim: Int) -> Int{
     return ret_axis
 }
 
+func get_multi_dim_index(flattenedIndex: Int, strides: [Int]) -> MfArray {
+    var multiIndex = [Int]()
+    var remainder = flattenedIndex
+    
+    for stride in strides {
+        let index = remainder / stride
+        multiIndex.append(index)
+        remainder %= stride
+    }
+    
+    return .init(multiIndex, mftype: .Int, shape: [strides.count])
+}
 
 /// Get a flatten index for row major order
 /// - Parameters:
