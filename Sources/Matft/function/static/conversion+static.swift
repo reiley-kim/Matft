@@ -136,12 +136,17 @@ extension Matft{
         let newarray = mfarray.shallowcopy()
         
         var newshape = mfarray.shape
-        let axis = get_positive_axis_for_expand_dims(axis, ndim: mfarray.ndim)
-        
-        newshape.insert(1, at: axis)
         var newstrides = mfarray.strides
-        newstrides.insert(0, at: axis)
         
+        if axis == -1 {
+            newshape.append(1)
+            newstrides.append(0)
+        } else {
+            newshape.insert(1, at: axis)
+            newstrides.insert(0, at: axis)
+        }
+        let axis = get_positive_axis_for_expand_dims(axis, ndim: mfarray.ndim)
+                
         newarray.mfstructure = MfStructure(shape: newshape, strides: newstrides)
         
         return newarray
