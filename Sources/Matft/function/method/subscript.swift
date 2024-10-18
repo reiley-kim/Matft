@@ -10,6 +10,32 @@ import Foundation
 import Accelerate
 
 extension MfArray: MfSubscriptable{
+    public subscript(indices: [Int]) -> Any {
+        get {
+            precondition(indices.count == self.ndim)
+            var indices: [Any] = indices
+            let ret = self._get_mfarray(indices: &indices)
+            
+            if let scalar = ret.scalar{
+                return scalar
+            }
+            else{
+                return ret
+            }
+        }
+        set(newValue){
+            precondition(indices.count == self.ndim)
+            var indices: [Any] = indices
+            
+            if let newValue = newValue as? MfArray{
+                return self._set_mfarray(indices: &indices, newValue: newValue)
+            }
+            else{
+                return self._set_mfarray(indices: &indices, newValue: MfArray([newValue]))
+            }
+        }
+    }
+    
     public subscript(indices: Int...) -> Any{
         get {
             var indices: [Any] = indices
