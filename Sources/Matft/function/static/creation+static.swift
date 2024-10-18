@@ -198,6 +198,43 @@ extension Matft{
         return MfArray(mfdata: newdata, mfstructure: newstructure)
         
     }
+    
+    
+    static public func `where`(_ condition: MfArray) -> [MfArray] {
+        precondition(condition.mftype == .Bool)
+        
+        let strides = condition.strides
+        
+        var trueIndices: [Int] = []
+        
+        for (index, value) in condition.data.enumerated() {
+            if value as! Bool {
+                trueIndices.append(index)
+            }
+        }
+        
+        let multiDimIndices = trueIndices.map { get_multi_dim_index(flattenedIndex: $0, strides: strides) }
+        
+        return multiDimIndices
+    }
+    
+    static public func mgrid(width: Int, height: Int, mfType: MfType) -> (x: MfArray, y: MfArray) {
+        // Create a meshgrid for the x and y coordinates
+        let x = Matft.arange(start: 0, to: width, by: 1, shape: [1, width], mftype: mfType)
+        let y = Matft.arange(start: 0, to: height, by: 1, shape: [height, 1], mftype: mfType)
+        
+        // Use broadcasting to create the grid
+        let xGrid = Matft.broadcast_to(x, shape: [height, width])
+        let yGrid = Matft.broadcast_to(y, shape: [height, width])
+        
+        return (x: xGrid, y: yGrid)
+    }
+    
+    // Stack multiple arrays along a new axis
+    static public func stack(_ arrays: [MfArray], axis: Int = 0) -> MfArray {
+        let expandedArrays = arrays.map { Matft.expand_dims($0, axis: axis) }
+        return Matft.concatenate(expandedArrays, axis: axis)
+    }
     /**
        Concatenate given arrays vertically(for row)
        - parameters:
